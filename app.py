@@ -34,15 +34,12 @@ class LogisticsSystem:
         self.rebalance_routes(db)
 
     def rebalance_warehouses(self, db):
-        # Рахуємо навантаження на кожну точку
         points_db = db.execute("SELECT id, regular_amount, urgent_amount FROM points").fetchall()
         point_loads = [{"id": p[0], "load": p[1] + p[2]} for p in points_db]
-        
-        # Сортуємо від найважчої до найлегшої
+
         point_loads.sort(key=lambda x: x["load"], reverse=True)
         warehouse_loads = {1: 0, 2: 0, 3: 0}
-        
-        # Розподіляємо жадібним алгоритмом
+
         for p in point_loads:
             lightest_w = min(warehouse_loads, key=warehouse_loads.get)
             db.execute("UPDATE points SET warehouse_id = ? WHERE id = ?", (lightest_w, p["id"]))
@@ -55,10 +52,8 @@ class LogisticsSystem:
         self.active_deliveries = []
         driver_id_counter = 101
 
-        # Динамічний перерозподіл точок по складах
         self.rebalance_warehouses(db)
 
-        # Стан складів (outflow - це те, скільки склад реально має віддати за місяць)
         warehouses_state = {i: {"stock": self.warehouse_capacity, "outflow": 0} for i in [1, 2, 3]}
         points_db = db.execute("SELECT id, warehouse_id, regular_amount, urgent_amount FROM points").fetchall()
         
@@ -66,18 +61,15 @@ class LogisticsSystem:
         
         for row in points_db:
             p_id, w_id, reg_amt, urg_amt = row
-            
-            # Рахуємо потребу для критичних
+
             if urg_amt > 0:
                 warehouses_state[w_id]["outflow"] += urg_amt
                 trips_month = math.ceil(urg_amt / self.truck_capacity)
-                # Точна математика водіїв: (рейси * дні) / 30
                 drivers_needed = max(1, math.ceil((trips_month * self.delivery_days) / 30))
                 
                 for _ in range(drivers_needed):
                     queue.append({"p": p_id, "w": w_id, "type": "Критично", "pri": 1})
-                    
-            # Рахуємо потребу для регулярних
+
             if reg_amt > 0:
                 warehouses_state[w_id]["outflow"] += reg_amt
                 trips_month = math.ceil(reg_amt / self.truck_capacity)
@@ -86,7 +78,6 @@ class LogisticsSystem:
                 for _ in range(drivers_needed):
                     queue.append({"p": p_id, "w": w_id, "type": "Регулярно", "pri": 2})
 
-        # Сортуємо: Критичні їдуть першими
         queue.sort(key=lambda x: x["pri"])
         available_drivers = self.total_drivers
 
@@ -108,19 +99,17 @@ class LogisticsSystem:
             driver_id_counter += 1
             available_drivers -= 1
 
-        # Логіка постачальника (везе рівно стільки, скільки потрібно складу)
         for w_id in [1, 2, 3]:
             outflow = warehouses_state[w_id]["outflow"]
             
             if outflow > 0:
-                # Постачальник везе фурами (в 5 разів більшими)
                 sup_trips = math.ceil(outflow / (self.truck_capacity * 5))
                 sup_drivers = max(1, math.ceil((sup_trips * self.delivery_days) / 30))
                 
                 self.active_deliveries.append({
                     "warehouse_id": w_id, 
                     "drivers": sup_drivers, 
-                    "amount": outflow  # ТЕПЕР ТУТ ТОЧНЕ ЗНАЧЕННЯ
+                    "amount": outflow
                 })
                 
                 for _ in range(sup_drivers):
