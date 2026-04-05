@@ -30,7 +30,7 @@
                     <label class="text-sm font-medium text-slate-600">Обсяг машини (од.):</label>
                     <div class="flex gap-2">
                         <input name="val" value="{{ amount }}" class="w-16 p-1 border rounded text-center">
-                        <button class="bg-indigo-600 text-white px-2 py-1 rounded text-sm hover:bg-indigo-700">ОК</button>
+                        <button type="submit" class="bg-indigo-600 text-white px-2 py-1 rounded text-sm hover:bg-indigo-700">ОК</button>
                     </div>
                 </form>
 
@@ -66,6 +66,30 @@
 
         <div class="lg:col-span-2 space-y-6">
             
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-bold text-slate-900 mb-4">Моніторинг запитів від точок</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="p-2">Точка</th>
+                                <th class="p-2">Регулярне</th>
+                                <th class="p-2">Критичне</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in points_info %}
+                            <tr class="border-b">
+                                <td class="p-2 font-bold">№{{ p[0] }}</td>
+                                <td class="p-2 text-indigo-600">{{ p[1] }} од.</td>
+                                <td class="p-2 text-red-600 font-bold">{{ p[2] }} од.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold text-slate-900 mb-4">Поставки від постачальника</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,5 +1,7 @@
-<html>
+<!DOCTYPE html>
+<html lang="uk">
 <head>
+    <meta charset="UTF-8">
     <title>LUPA | Термінал точки</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -7,7 +9,6 @@
 
     <nav class="bg-white shadow-sm border-b py-4 px-8 flex justify-between items-center">
         <div class="flex items-center gap-2">
-            <img src="{{ url_for('static', filename='img/lupa.png') }}" alt="Логотип" class="w-8 h-8">
             <h1 class="text-2xl font-extrabold text-indigo-600">LUPA</h1>
         </div>
         <div class="flex items-center gap-6">
@@ -20,12 +21,12 @@
         
         <div class="bg-white p-8 rounded-xl shadow-md border border-slate-100">
             <h2 class="text-xl font-bold text-slate-900 mb-2">Місячне замовлення</h2>
-            <p class="text-sm text-slate-500 mb-6">
-                Буде доставлятись регулярно: по <span class="font-bold text-indigo-600">{{ number }}</span> од., кожні <mark id="days" class="bg-indigo-100 text-indigo-800 px-1 rounded font-bold">0</mark> днів.
+            <p id="reg-text" class="text-sm text-slate-600 mb-6 min-h-[40px]">
+                Введіть обсяг замовлення для розрахунку логістики.
             </p>
             
-            <form method="post" action="/set-reg" class="flex flex-col gap-4">
-                <input type="number" value="{{ value }}" data-capacity="{{ number }}" placeholder="Введіть обсяг" name="reg" class="p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <form method="post" action="/set-data/{{ ID }}" class="flex flex-col gap-4">
+                <input type="number" value="{{ value }}" data-capacity="{{ number }}" data-speed="{{ speed }}" placeholder="Введіть обсяг" name="reg" id="reg-input" class="p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors">
                     Підтвердити регулярне
                 </button>
@@ -35,11 +36,11 @@
         <div class="bg-white p-8 rounded-xl shadow-md border border-red-50">
             <h2 class="text-xl font-bold text-red-600 mb-2">Терміновий запит</h2>
             <p class="text-sm text-slate-500 mb-6">
-                Замовлення буде опрацьовано позачергово та доставлене в найкоротші терміни.
+                Замовлення буде опрацьовано позачергово та доставлене в найкоротші терміни (Час доставки: {{ speed }} дн.).
             </p>
             
-            <form method="post" action="/set-term" class="flex flex-col gap-4">
-                <input type="number" placeholder="Введіть кількість (Критично)" name="term" class="p-3 border border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+            <form method="post" action="/set-data/{{ ID }}" class="flex flex-col gap-4">
+                <input type="number" placeholder="Введіть кількість (Критично)" name="term" id="term-input" class="p-3 border border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
                 <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg transition-colors">
                     Надіслати терміново
                 </button>
